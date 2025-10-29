@@ -1,4 +1,7 @@
 function out = MEAfittingzwit(expdata)
+
+'compiled December 2012
+
 %%Rate constant estimation
 % Inputs:
 % Experimental data (concentration-time profile): expdata
