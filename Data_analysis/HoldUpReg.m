@@ -1,28 +1,32 @@
-clear;
+%Script is used to perform nonlinear least squares and absolute deviation regression, fitting hydrodynamic data (liquid holdup, h, and some dimensionless variables, Fr2Re) to a power law expression of the form y = a*x^b
 
-h = [0.060616683; 0.068904886; 0.138016332; 0.169026769; 0.287905755; 0.274849378; 0.490112363; 0.058988007; 0.078305391; 0.161587108; 0.114772076; 0.156745006; 0.115280419; 0.108966694];
-Fr2Re = [7.3053E-10; 3.01816E-09; 6.72462E-09; 6.36164E-09; 2.32604E-08; 2.3545E-08; 6.7946E-08; 1.17234E-09; 3.42499E-09; 1.0125E-08; 1.50692E-09; 4.8193E-09; 1.38576E-09; 1.43812E-09];
+%Representative synthetic data are included below to demonstrate use
+
+h = [0.0191; 0.0806; 0.1501; 0.2125; 0.2747; 0.3506; 0.4017; 0.0514; 0.1087; 0.1231]; %experimental holdup data
+Fr2Re = [9.424E-10; 2.988E-09; 4.976E-09; 5.280E-09; 1.954E-08; 1.695E-08; 6.387E-08; 1.336E-09; 2.671E-09; 9.518E-09]; %Froude number^2 * Reynolds number
+
+lnh = [-3.958066944; -2.518256629; -1.89645354; -1.548813291; -1.292075686; -1.048109306; -0.912049738; -2.968117107; -2.219163485; -2.094758246]; %natural logarithm of h
+lnFr2Re = [-20.7826086; -19.6286688; -19.11859551; -19.05930921; -17.75086688; -17.89285642; -16.56642797; -20.43323582; -19.74062864; -18.47013363]; %natural logarithm of Fr2Re
 
 x = size(h);
 
-%lnh = [-2.803185127; -2.675028192; -1.980383253; -1.777698178; -1.24512209; -1.291532046; -0.713120603; -2.830421125; -2.547138832; -1.822710914; -2.164807062; -1.853134959; -2.160387692; -2.216713004];
-%lnFr2Re = [-21.03725107; -19.61861799; -18.81749048; -18.87298007; -17.57651194; -17.56435285; -16.50455203; -20.56426377; -19.49216803; -18.40826074; -20.31319603; -19.15063699; -20.39701497; -20.35993121];
+nLS = fit(Fr2Re,h,'power1'); %nonlinear regression using least squares
+nLA = fit(Fr2Re,h,'power1',Robust="LAR"); %nonlinear regression using least absolute deviation
+lLA = fit(lnFr2Re,lnh,'poly1',Robust="LAR"); %linear regression using least absolute deviation, based on the linearized data
 
-nLS = fit(Fr2Re,h,'power1');
-nLA = fit(Fr2Re,h,'power1',Robust="LAR");
-%lLA = fit(lnFr2Re,lnh,'poly1',Robust="LAR");
+h_LS = nLS.a*Fr2Re.^nLS.b; %predicted holdup from the nonlinear least squares regression
+h_LA = nLA.a*Fr2Re.^nLA.b; %predicted holdup from the nonlinear least absolute deviation regression
+h_lLA = exp(lLA.p2)*Fr2Re.^lLA.p1; %predicted holdup from the linear least absolute deviation regression
 
-h_LS = nLS.a*Fr2Re.^nLS.b;
-h_LA = nLA.a*Fr2Re.^nLA.b;
-%h_lLA = exp(lLA.p2)*Fr2Re.^lLA.p1;
-
+%residuals from the three regression cases
 res_LS = h - h_LS;
 res_LA = h - h_LA;
-%res_lLA = h - h_lLA;
+res_lLA = h - h_lLA;
 
-aad_LS = sum(abs(res_LS./h))/x(1,1)*100; % for %AAD
+%percentage average absolute deviations from the three regression cases
+aad_LS = sum(abs(res_LS./h))/x(1,1)*100;
 aad_LA = sum(abs(res_LA./h))/x(1,1)*100;
-%aad_lLA = sum(abs(res_lLA./h))/x(1,1)*100;
+aad_lLA = sum(abs(res_lLA./h))/x(1,1)*100;
 
 %figure,
 %plot(Fr2Re,h,'o','MarkerFaceColor','b','MarkerEdgeColor','b')
@@ -66,3 +70,4 @@ aad_LA = sum(abs(res_LA./h))/x(1,1)*100;
 
 %legend(p(1,:), {'Original','LS','LAD'})
 %legend({'LS','LAD','lLAD'})
+
