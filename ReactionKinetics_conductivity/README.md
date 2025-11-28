@@ -8,4 +8,4 @@ This project focuses on modelling the kinetics of the aqueous reaction of carbon
 Similar experiments were performed in a follow-up project where the reaction was monitored using FTIR spectroscopy. The results were published in a Masters thesis (Motang, 2015) (http://hdl.handle.net/10019.1/96903).
 
 ## Tools Used
-- `MATLAB`: Used for solving ODEs to regress rate constants and then creating plots of experimental vs. predicted data.
+- `MATLAB`: Used for solving ODEs to regress rate constants and then create plots of experimental vs. predicted data.
